@@ -10,7 +10,6 @@ export class Waiting implements State {
 	
 	constructor(bot: TelegramBot) {
 		this.bot = bot
-		this.bot.setMyCommands([{command: '/done', description: 'Use this when you are ready to generate the .pdf'}])
 	}
 
 	next(msg: TelegramBot.Message): State | undefined {
@@ -33,7 +32,7 @@ export class Waiting implements State {
 				})
 			})
 
-			return undefined
+			return new Waiting(this.bot)
 		}
 
 		else if (!msg.photo) {

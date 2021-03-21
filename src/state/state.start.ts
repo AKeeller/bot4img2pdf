@@ -7,7 +7,6 @@ export class StartState implements State {
 
 	constructor(bot: TelegramBot) {
 		this.bot = bot
-		this.bot.setMyCommands([{command: '/start', description: 'Start the bot'}]).finally(() => {console.log("Finally")})
 	}
 	
 	next(msg: TelegramBot.Message): State {
