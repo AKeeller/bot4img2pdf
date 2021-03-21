@@ -15,6 +15,11 @@ const chats = new Map<number, State>()
 bot.on('message', (msg) => {
 	const chatId = msg.chat.id
 
+	if (msg.text === "/reset") {
+		chats.delete(chatId)
+		return
+	}
+
 	const state: State = chats.get(chatId) ?? new StartState(bot)
 	const next = state.next(msg)
 
