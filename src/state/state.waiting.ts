@@ -6,7 +6,7 @@ export class Waiting implements State {
 	bot: TelegramBot
 	nop: number = 0
 
-	private readonly downloadFolder = (id: number) => '/Users/Alberto/Downloads/telegram_bot/' + id + '/'
+	private readonly getDownloadFolder = (id: number) => process.env.DOWNLOAD_FOLDER ?? './' + id + '/'
 	
 	constructor(bot: TelegramBot) {
 		this.bot = bot
@@ -18,20 +18,20 @@ export class Waiting implements State {
 			this.bot.sendMessage(msg.chat.id, "I'm sending the file…")
 
 			const { exec } = require('child_process');
-			exec('img2pdf ' + this.downloadFolder(msg.chat.id) + '/*.jpg', {encoding: 'buffer', maxBuffer: 1024 * 1024 * 50}, (err: any, stdout: any, stderr: any) => {
+			exec('img2pdf ' + this.getDownloadFolder(msg.chat.id) + '/*.jpg', {encoding: 'buffer', maxBuffer: 1024 * 1024 * 50}, (err: any, stdout: any, stderr: any) => {
 				if (err) {
 					console.error(err)
 					return
 				}
 				this.bot.sendDocument(msg.chat.id, stdout, {}, { filename: 'file.pdf', contentType: 'application/pdf' })
-				this.clearFolder(this.downloadFolder(msg.chat.id))
+				this.clearFolder(this.getDownloadFolder(msg.chat.id))
 			})
 
 			return new Waiting(this.bot)
 		}
 
 		else if (msg.text === "/reset") {
-			this.clearFolder(this.downloadFolder(msg.chat.id))
+			this.clearFolder(this.getDownloadFolder(msg.chat.id))
 			this.bot.sendMessage(msg.chat.id, "Bot reset completed.")
 			return undefined
 		}
@@ -41,8 +41,8 @@ export class Waiting implements State {
 			return this
 		}
 
-		fs.mkdir(this.downloadFolder(msg.chat.id), {recursive: true}, (err) => { if (err) throw err })
-		this.bot.downloadFile(msg.photo[2].file_id, this.downloadFolder(msg.chat.id))
+		fs.mkdir(this.getDownloadFolder(msg.chat.id), {recursive: true}, (err) => { if (err) throw err })
+		this.bot.downloadFile(msg.photo[2].file_id, this.getDownloadFolder(msg.chat.id))
 		.finally(() => {
 			this.nop++
 			this.bot.sendMessage(msg.chat.id, "I received " + this.nop + " photos")
