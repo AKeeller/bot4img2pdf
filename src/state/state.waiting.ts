@@ -6,7 +6,7 @@ export class Waiting implements State {
 	bot: TelegramBot
 	nop: number = 0
 
-	private readonly getDownloadFolder = (id: number) => process.env.DOWNLOAD_FOLDER ?? './' + id + '/'
+	private readonly getDownloadFolder = (id: number) => (process.env.DOWNLOAD_FOLDER ?? './') + id + '/'
 	
 	constructor(bot: TelegramBot) {
 		this.bot = bot
