@@ -18,7 +18,7 @@ export class Waiting implements State {
 			this.bot.sendMessage(msg.chat.id, "I'm sending the file…")
 
 			const { exec } = require('child_process');
-			exec('img2pdf ' + this.downloadFolder(msg.chat.id) + '/*.jpg', {encoding: 'buffer'}, (err: any, stdout: any, stderr: any) => {
+			exec('img2pdf ' + this.downloadFolder(msg.chat.id) + '/*.jpg', {encoding: 'buffer', maxBuffer: 1024 * 1024 * 50}, (err: any, stdout: any, stderr: any) => {
 				if (err) {
 					console.error(err)
 					return
