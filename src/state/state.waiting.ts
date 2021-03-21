@@ -4,7 +4,6 @@ import fs from 'fs'
 
 export class Waiting implements State {
 	bot: TelegramBot
-	nop: number = 0
 
 	private readonly getDownloadFolder = (id: number) => (process.env.DOWNLOAD_FOLDER ?? './') + id + '/'
 	
@@ -48,10 +47,6 @@ export class Waiting implements State {
 
 		fs.mkdir(this.getDownloadFolder(msg.chat.id), {recursive: true}, (err) => { if (err) throw err })
 		this.bot.downloadFile(msg.photo[2].file_id, this.getDownloadFolder(msg.chat.id))
-		.finally(() => {
-			this.nop++
-			this.bot.sendMessage(msg.chat.id, "I received " + this.nop + " photos")
-		})
 		
 		return this
 	}
