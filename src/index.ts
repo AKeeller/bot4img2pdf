@@ -13,16 +13,10 @@ const bot = new TelegramBot(token, {polling: true})
 const chats = new Map<number, State>()
 
 bot.on('message', (msg) => {
-	const username = msg.chat.username
 	const chatId = msg.chat.id
 
-	const state: State = chats.get(chatId) ?? new StartState()
-	const next = state.next()
-	const reply: string = state.reply()
+	const state: State = chats.get(chatId) ?? new StartState(bot)
+	const next = state.next(msg)
 
 	next ? chats.set(chatId, next) : chats.delete(chatId)
-
-	bot.sendMessage(chatId, reply)
-	console.log(username + ": " + msg.text)
-	console.log("Bot: " + reply)
 })
