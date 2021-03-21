@@ -36,6 +36,11 @@ export class Waiting implements State {
 			return undefined
 		}
 
+		else if (msg.sticker) {
+			this.bot.sendMessage(msg.chat.id, "Your sticker is very funny, but unfortunately I only accept photos!")
+			return this
+		}
+
 		else if (!msg.photo) {
 			this.bot.sendMessage(msg.chat.id, "Oops! I was expecting a photo, but I received something else. Please, send me some pictures!")
 			return this
