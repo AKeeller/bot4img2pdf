@@ -24,15 +24,16 @@ export class Waiting implements State {
 					return
 				}
 				this.bot.sendDocument(msg.chat.id, stdout, {}, { filename: 'file.pdf', contentType: 'application/pdf' })
-				fs.rmdir(this.downloadFolder(msg.chat.id), {recursive: true}, (err) => {
-					if (err)
-						console.error(err)
-					else
-						console.log("Removed folder " + this.downloadFolder(msg.chat.id))
-				})
+				this.clearFolder(this.downloadFolder(msg.chat.id))
 			})
 
 			return new Waiting(this.bot)
+		}
+
+		else if (msg.text === "/reset") {
+			this.clearFolder(this.downloadFolder(msg.chat.id))
+			this.bot.sendMessage(msg.chat.id, "Bot reset completed.")
+			return undefined
 		}
 
 		else if (!msg.photo) {
@@ -48,5 +49,14 @@ export class Waiting implements State {
 		})
 		
 		return this
+	}
+
+	private clearFolder(folder: string) {
+		fs.rmdir(folder, {recursive: true}, (err) => {
+			if (err)
+				console.error(err)
+			else
+				console.log("Removed folder " + folder)
+		})
 	}
 }
