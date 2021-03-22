@@ -5,12 +5,12 @@ import { WaitingPhoto } from "./state.waiting-photo"
 export class StartState extends State {
 
 	private readonly welcomeMessage =
-		"Welcome! 👋\nSend me as many photos 📷 as you want. When you are ready to generate the .pdf, just use the /done command 👍"
+		"<b>Welcome! 👋</b>\nSend me as many photos 📷 as you want. When you are ready to generate the .pdf, just use the /done command 👍"
 	
 	next(msg: TelegramBot.Message): State {
 
 		if (msg.text === "/start") {
-			this.bot.sendMessage(msg.chat.id, this.welcomeMessage)
+			this.bot.sendMessage(msg.chat.id, this.welcomeMessage, { parse_mode: 'HTML' })
 			return new WaitingPhoto()
 		}
 
