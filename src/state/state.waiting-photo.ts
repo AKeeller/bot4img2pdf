@@ -30,7 +30,7 @@ export class WaitingPhoto extends State {
 
 		else if (msg.text === "/reset") {
 			this.clearFolder(downloadFolder)
-			this.bot.sendMessage(msg.chat.id, "Bot reset completed.")
+			this.bot.sendMessage(msg.chat.id, "Bot reset completed.", { reply_markup: {remove_keyboard: true} })
 			return undefined
 		}
 
