@@ -1,6 +1,6 @@
 import TelegramBot from "node-telegram-bot-api"
 import { State } from "./state"
-import { Waiting } from "./state.waiting"
+import { WaitingPhoto } from "./state.waiting-photo"
 
 export class StartState implements State {
 	bot: TelegramBot
@@ -16,7 +16,7 @@ export class StartState implements State {
 
 		if (msg.text === "/start") {
 			this.bot.sendMessage(msg.chat.id, this.welcomeMessage)
-			return new Waiting(this.bot)
+			return new WaitingPhoto(this.bot)
 		}
 
 		this.bot.sendMessage(msg.chat.id, "Use /start to start.")

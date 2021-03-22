@@ -2,7 +2,7 @@ import TelegramBot from "node-telegram-bot-api";
 import { State } from "./state";
 import fs from 'fs'
 
-export class Waiting implements State {
+export class WaitingPhoto implements State {
 	bot: TelegramBot
 	
 	constructor(bot: TelegramBot) {
@@ -30,7 +30,7 @@ export class Waiting implements State {
 				this.clearFolder(downloadFolder)
 			})
 
-			return new Waiting(this.bot)
+			return new WaitingPhoto(this.bot)
 		}
 
 		else if (msg.text === "/reset") {
