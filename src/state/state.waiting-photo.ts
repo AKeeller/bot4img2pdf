@@ -13,7 +13,7 @@ export class WaitingPhoto extends State {
 				return this
 			}
 
-			this.bot.sendMessage(msg.chat.id, "I'm sending the file…")
+			this.bot.sendChatAction(msg.chat.id, 'upload_document')
 
 			const { exec } = require('child_process');
 			exec('img2pdf ' + downloadFolder + '/*.jpg', {encoding: 'buffer', maxBuffer: 1024 * 1024 * 50}, (err: any, stdout: any, stderr: any) => {
