@@ -40,7 +40,7 @@ export class WaitingPhoto extends State {
 		}
 
 		else if (!msg.photo) {
-			this.bot.sendMessage(msg.chat.id, "Oops! I was expecting a photo, but I received something else. Please, send me some pictures!")
+			this.bot.sendMessage(msg.chat.id, "<b>Oops!</b> I was expecting a photo, but I received something else. Please, send me some pictures!", { parse_mode: 'HTML' })
 			return this
 		}
 
