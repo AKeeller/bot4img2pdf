@@ -4,33 +4,37 @@ import fs from 'fs'
 
 export class Waiting implements State {
 	bot: TelegramBot
-
-	private readonly getDownloadFolder = (id: number) => (process.env.DOWNLOAD_FOLDER ?? './') + id + '/'
 	
 	constructor(bot: TelegramBot) {
 		this.bot = bot
 	}
 
 	next(msg: TelegramBot.Message): State | undefined {
+		const downloadFolder = (process.env.DOWNLOAD_FOLDER ?? './') + msg.chat.id + '/'
 
 		if (msg.text === "/done") {
+			if (!fs.existsSync(downloadFolder) || (fs.existsSync(downloadFolder) && fs.readdirSync(downloadFolder).length <= 0)) {
+				this.bot.sendMessage(msg.chat.id, "Send me some photos and then use the /done command 😉")
+				return this
+			}
+
 			this.bot.sendMessage(msg.chat.id, "I'm sending the file…")
 
 			const { exec } = require('child_process');
-			exec('img2pdf ' + this.getDownloadFolder(msg.chat.id) + '/*.jpg', {encoding: 'buffer', maxBuffer: 1024 * 1024 * 50}, (err: any, stdout: any, stderr: any) => {
+			exec('img2pdf ' + downloadFolder + '/*.jpg', {encoding: 'buffer', maxBuffer: 1024 * 1024 * 50}, (err: any, stdout: any, stderr: any) => {
 				if (err) {
 					console.error(err)
 					return
 				}
 				this.bot.sendDocument(msg.chat.id, stdout, {}, { filename: 'file.pdf', contentType: 'application/pdf' })
-				this.clearFolder(this.getDownloadFolder(msg.chat.id))
+				this.clearFolder(downloadFolder)
 			})
 
 			return new Waiting(this.bot)
 		}
 
 		else if (msg.text === "/reset") {
-			this.clearFolder(this.getDownloadFolder(msg.chat.id))
+			this.clearFolder(downloadFolder)
 			this.bot.sendMessage(msg.chat.id, "Bot reset completed.")
 			return undefined
 		}
@@ -45,8 +49,8 @@ export class Waiting implements State {
 			return this
 		}
 
-		fs.mkdir(this.getDownloadFolder(msg.chat.id), {recursive: true}, (err) => { if (err) throw err })
-		this.bot.downloadFile(msg.photo[2].file_id, this.getDownloadFolder(msg.chat.id))
+		fs.mkdir(downloadFolder, {recursive: true}, (err) => { if (err) throw err })
+		this.bot.downloadFile(msg.photo[2].file_id, downloadFolder)
 		
 		return this
 	}
