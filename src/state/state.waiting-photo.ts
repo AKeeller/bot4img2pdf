@@ -2,12 +2,7 @@ import TelegramBot from "node-telegram-bot-api";
 import { State } from "./state";
 import fs from 'fs'
 
-export class WaitingPhoto implements State {
-	bot: TelegramBot
-	
-	constructor(bot: TelegramBot) {
-		this.bot = bot
-	}
+export class WaitingPhoto extends State {
 
 	next(msg: TelegramBot.Message): State | undefined {
 		const downloadFolder = (process.env.DOWNLOAD_FOLDER ?? './') + msg.chat.id + '/'
@@ -30,7 +25,7 @@ export class WaitingPhoto implements State {
 				this.clearFolder(downloadFolder)
 			})
 
-			return new WaitingPhoto(this.bot)
+			return new WaitingPhoto()
 		}
 
 		else if (msg.text === "/reset") {
