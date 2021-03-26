@@ -1,6 +1,6 @@
 import TelegramBot from "node-telegram-bot-api";
 import { State } from "./state";
-import fs from 'fs'
+import { Files } from '../files'
 
 export class WaitingPhoto extends State {
 
@@ -8,7 +8,7 @@ export class WaitingPhoto extends State {
 		const downloadFolder = (process.env.DOWNLOAD_FOLDER ?? './') + msg.chat.id + '/'
 
 		if (msg.text === "/done") {
-			if (!fs.existsSync(downloadFolder) || (fs.existsSync(downloadFolder) && fs.readdirSync(downloadFolder).length <= 0)) {
+			if (Files.isEmpty(downloadFolder)) {
 				this.bot.sendMessage(msg.chat.id, "Send me some photos and then use the /done command 😉")
 				return this
 			}
@@ -22,14 +22,14 @@ export class WaitingPhoto extends State {
 					return
 				}
 				this.bot.sendDocument(msg.chat.id, stdout, {}, { filename: 'file.pdf', contentType: 'application/pdf' })
-				this.clearFolder(downloadFolder)
+				Files.deleteFolder(downloadFolder)
 			})
 
 			return new WaitingPhoto()
 		}
 
 		else if (msg.text === "/reset") {
-			this.clearFolder(downloadFolder)
+			Files.deleteFolder(downloadFolder)
 			this.bot.sendMessage(msg.chat.id, "Bot reset completed.", { reply_markup: {remove_keyboard: true} })
 			return undefined
 		}
@@ -44,18 +44,10 @@ export class WaitingPhoto extends State {
 			return this
 		}
 
-		fs.mkdir(downloadFolder + '/', {recursive: true}, (err) => { if (err) throw err })
+		Files.createFolder(downloadFolder)
 		this.bot.downloadFile(msg.photo[2].file_id, downloadFolder)
 		
 		return this
 	}
-
-	private clearFolder(folder: string) {
-		fs.rmdir(folder, {recursive: true}, (err) => {
-			if (err)
-				console.error(err)
-			else
-				console.log("Removed folder " + folder)
-		})
-	}
+	
 }
