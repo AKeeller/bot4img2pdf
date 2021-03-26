@@ -44,7 +44,7 @@ export class WaitingPhoto extends State {
 			return this
 		}
 
-		fs.mkdir(downloadFolder, {recursive: true}, (err) => { if (err) throw err })
+		fs.mkdir(downloadFolder + '/', {recursive: true}, (err) => { if (err) throw err })
 		this.bot.downloadFile(msg.photo[2].file_id, downloadFolder)
 		
 		return this
