@@ -11,7 +11,14 @@ export class Bot {
 		if (!token)
 			throw new Error("Token not found. Create a .env file an put your token there.")
 
-		this._bot = new TelegramBot(token, { polling: true })
+		let options
+
+		if(!process.env.CERT || !process.env.KEY)
+			options = { polling: true }
+		else
+			options = { webHook: { cert: process.env.CERT, key: process.env.KEY } }
+
+		this._bot = new TelegramBot(token, options)
 	}
 
 	public static get instance() {
