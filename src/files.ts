@@ -7,7 +7,7 @@ export module Files {
 	}
 
 	export function deleteFolder(folder: string) {
-		fs.rmdir(folder, {recursive: true}, (err) => {
+		fs.rm(folder, { recursive: true, force: true }, (err) => {
 			if (err)
 				console.error(err)
 			else
