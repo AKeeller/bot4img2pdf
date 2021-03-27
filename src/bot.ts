@@ -1,35 +1,15 @@
 import TelegramBot from "node-telegram-bot-api"
 
-class Bot {
+const token = process.env.TOKEN
 
-	private _bot: TelegramBot
-	private static _instance: Bot
+if (!token)
+	throw new Error("Token not found. Create a .env file an put your token there.")
 
-	private constructor() {
-		const token = process.env.TOKEN
+let options
 
-		if (!token)
-			throw new Error("Token not found. Create a .env file an put your token there.")
+if(!process.env.CERT || !process.env.KEY)
+	options = { polling: true }
+else
+	options = { webHook: { cert: process.env.CERT, key: process.env.KEY } }
 
-		let options
-
-		if(!process.env.CERT || !process.env.KEY)
-			options = { polling: true }
-		else
-			options = { webHook: { cert: process.env.CERT, key: process.env.KEY } }
-
-		this._bot = new TelegramBot(token, options)
-	}
-
-	public static get instance() {
-		if (!Bot._instance)
-			Bot._instance = new Bot()
-		return Bot._instance
-	}
-
-	public get bot() {
-		return this._bot
-	}
-}
-
-export const bot = Bot.instance.bot
+export const bot = new TelegramBot(token, options)
