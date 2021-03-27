@@ -1,8 +1,8 @@
 {
   "name": "bot4img2pdf",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Telegram bot for img2pdf",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "start": "tsc && node -r dotenv/config dist/index.js"
   },
