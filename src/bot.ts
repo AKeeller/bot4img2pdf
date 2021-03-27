@@ -1,6 +1,6 @@
 import TelegramBot from "node-telegram-bot-api"
 
-export class Bot {
+class Bot {
 
 	private _bot: TelegramBot
 	private static _instance: Bot
@@ -31,3 +31,5 @@ export class Bot {
 		return this._bot
 	}
 }
+
+export const bot = Bot.instance.bot

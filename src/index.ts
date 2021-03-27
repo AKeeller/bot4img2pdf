@@ -1,8 +1,6 @@
-import { Bot } from "./bot";
+import { bot } from "./bot";
 import { State } from "./state/state";
 import { StartState } from "./state/state.start";
-
-const bot = Bot.instance.bot
 
 // Chat ID -- State
 const chats = new Map<number, State>()
