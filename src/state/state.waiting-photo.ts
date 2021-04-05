@@ -46,8 +46,11 @@ export class WaitingPhoto implements State {
 	}
 
 	reset(downloadFolder: string, msg: TelegramBot.Message): State | undefined {
+		const start: TelegramBot.KeyboardButton = { text: '/start' }
+		const reply_keyboard: TelegramBot.ReplyKeyboardMarkup = { keyboard:  [[start]], one_time_keyboard: false, resize_keyboard: true}
+
 		Files.deleteFolder(downloadFolder)
-		bot.sendMessage(msg.chat.id, "Bot reset completed.", { reply_markup: {remove_keyboard: true} })
+		bot.sendMessage(msg.chat.id, "Bot reset completed.", { reply_markup: reply_keyboard })
 		return undefined
 	}
 
