@@ -8,46 +8,63 @@ export class WaitingPhoto implements State {
 	next(msg: TelegramBot.Message): State | undefined {
 		const downloadFolder = (process.env.DOWNLOAD_FOLDER ?? './') + msg.chat.id + '/'
 
-		if (msg.text === "/done") {
-			if (Files.isEmpty(downloadFolder)) {
-				bot.sendMessage(msg.chat.id, "Send me some photos and then use the /done command 😉")
-				return this
-			}
+		if (msg.text === "/done")
+			return this.done(downloadFolder, msg)
 
-			bot.sendChatAction(msg.chat.id, 'upload_document')
+		else if (msg.text === "/reset")
+			return this.reset(downloadFolder, msg)
 
-			const { exec } = require('child_process');
-			exec('img2pdf ' + downloadFolder + '/*.jpg', {encoding: 'buffer', maxBuffer: 1024 * 1024 * 50}, (err: any, stdout: any, stderr: any) => {
-				if (err) {
-					console.error(err)
-					return
-				}
-				bot.sendDocument(msg.chat.id, stdout, {}, { filename: 'file.pdf', contentType: 'application/pdf' })
-				Files.deleteFolder(downloadFolder)
-			})
+		else if (msg.sticker)
+			return this.sticker(msg)
 
-			return new WaitingPhoto()
-		}
-
-		else if (msg.text === "/reset") {
-			Files.deleteFolder(downloadFolder)
-			bot.sendMessage(msg.chat.id, "Bot reset completed.", { reply_markup: {remove_keyboard: true} })
-			return undefined
-		}
-
-		else if (msg.sticker) {
-			bot.sendMessage(msg.chat.id, "Your sticker is very funny, but unfortunately I only accept photos!")
-			return this
-		}
-
-		else if (!msg.photo) {
-			bot.sendMessage(msg.chat.id, "<b>Oops!</b> I was expecting a photo, but I received something else. Please, send me some pictures!", { parse_mode: 'HTML' })
-			return this
-		}
-
-		Files.createFolder(downloadFolder)
-		bot.downloadFile(msg.photo[2].file_id, downloadFolder)
+		else if (msg.photo)
+			return this.photo(downloadFolder, msg)
 		
+		return this.default(msg)
+
+	}
+
+	done(downloadFolder: string, msg: TelegramBot.Message): State | undefined {
+		if (Files.isEmpty(downloadFolder)) {
+			bot.sendMessage(msg.chat.id, "Send me some photos and then use the /done command 😉")
+			return this
+		}
+
+		bot.sendChatAction(msg.chat.id, 'upload_document')
+
+		const { exec } = require('child_process');
+		exec('img2pdf ' + downloadFolder + '/*.jpg', {encoding: 'buffer', maxBuffer: 1024 * 1024 * 50}, (err: any, stdout: any, stderr: any) => {
+			if (err) {
+				console.error(err)
+				return
+			}
+			bot.sendDocument(msg.chat.id, stdout, {}, { filename: 'file.pdf', contentType: 'application/pdf' })
+			Files.deleteFolder(downloadFolder)
+		})
+
+		return new WaitingPhoto()
+	}
+
+	reset(downloadFolder: string, msg: TelegramBot.Message): State | undefined {
+		Files.deleteFolder(downloadFolder)
+		bot.sendMessage(msg.chat.id, "Bot reset completed.", { reply_markup: {remove_keyboard: true} })
+		return undefined
+	}
+
+	sticker(msg: TelegramBot.Message): State | undefined {
+		bot.sendMessage(msg.chat.id, "Your sticker is very funny, but unfortunately I only accept photos!")
+		return this
+	}
+	
+	photo(downloadFolder: string, msg: TelegramBot.Message): State | undefined {
+		Files.createFolder(downloadFolder)
+		bot.downloadFile(msg.photo![2].file_id, downloadFolder)
+		
+		return this
+	}
+
+	default(msg: TelegramBot.Message): State | undefined {
+		bot.sendMessage(msg.chat.id, "<b>Oops!</b> I was expecting a photo, but I received something else. Please, send me some pictures!", { parse_mode: 'HTML' })
 		return this
 	}
 	
