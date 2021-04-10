@@ -5,7 +5,7 @@ import { bot } from '../bot'
 
 export class WaitingPhoto implements State {
 
-	next(msg: TelegramBot.Message): State | undefined {
+	next(msg: TelegramBot.Message) {
 		const downloadFolder = (process.env.DOWNLOAD_FOLDER ?? './') + msg.chat.id + '/'
 
 		if (msg.text === "/done")
@@ -21,10 +21,9 @@ export class WaitingPhoto implements State {
 			return this.photo(downloadFolder, msg)
 
 		return this.default(msg)
-
 	}
 
-	done(downloadFolder: string, msg: TelegramBot.Message): State | undefined {
+	done(downloadFolder: string, msg: TelegramBot.Message) {
 		if (Files.isEmpty(downloadFolder)) {
 			bot.sendMessage(msg.chat.id, "Send me some photos and then use the /done command 😉")
 			return this
@@ -45,7 +44,7 @@ export class WaitingPhoto implements State {
 		return new WaitingPhoto()
 	}
 
-	reset(downloadFolder: string, msg: TelegramBot.Message): State | undefined {
+	reset(downloadFolder: string, msg: TelegramBot.Message) {
 		const start: TelegramBot.KeyboardButton = { text: '/start' }
 		const reply_keyboard: TelegramBot.ReplyKeyboardMarkup = { keyboard: [[start]], one_time_keyboard: false, resize_keyboard: true }
 
@@ -54,19 +53,19 @@ export class WaitingPhoto implements State {
 		return undefined
 	}
 
-	sticker(msg: TelegramBot.Message): State | undefined {
+	sticker(msg: TelegramBot.Message) {
 		bot.sendMessage(msg.chat.id, "Your sticker is very funny, but unfortunately I only accept photos!")
 		return this
 	}
 
-	photo(downloadFolder: string, msg: TelegramBot.Message): State | undefined {
+	photo(downloadFolder: string, msg: TelegramBot.Message) {
 		Files.createFolder(downloadFolder)
 		bot.downloadFile(msg.photo![2].file_id, downloadFolder)
 
 		return this
 	}
 
-	default(msg: TelegramBot.Message): State | undefined {
+	default(msg: TelegramBot.Message) {
 		bot.sendMessage(msg.chat.id, "<b>Oops!</b> I was expecting a photo, but I received something else. Please, send me some pictures!", { parse_mode: 'HTML' })
 		return this
 	}
