@@ -10,8 +10,8 @@ export class StartState implements State {
 
 	private done: TelegramBot.KeyboardButton = { text: '/done' }
 	private reset: TelegramBot.KeyboardButton = { text: '/reset' }
-	private reply_keyboard: TelegramBot.ReplyKeyboardMarkup = { keyboard:  [[this.done, this.reset]], one_time_keyboard: false, resize_keyboard: true}
-	
+	private reply_keyboard: TelegramBot.ReplyKeyboardMarkup = { keyboard: [[this.done, this.reset]], one_time_keyboard: false, resize_keyboard: true }
+
 	next(msg: TelegramBot.Message): State {
 
 		if (msg.text === "/start") {
@@ -22,5 +22,5 @@ export class StartState implements State {
 		bot.sendMessage(msg.chat.id, "Use /start to start.")
 		return this
 	}
-	
+
 }

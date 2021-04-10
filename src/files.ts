@@ -3,7 +3,7 @@ import fs from 'fs'
 export module Files {
 
 	export function createFolder(folder: string) {
-		fs.mkdir(folder + '/', {recursive: true}, (err) => { if (err) throw err })
+		fs.mkdir(folder + '/', { recursive: true }, (err) => { if (err) throw err })
 	}
 
 	export function deleteFolder(folder: string) {

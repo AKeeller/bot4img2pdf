@@ -7,7 +7,7 @@ if (!token)
 
 let options
 
-if(!process.env.CERT || !process.env.KEY)
+if (!process.env.CERT || !process.env.KEY)
 	options = { polling: true }
 else
 	options = { webHook: { cert: process.env.CERT, key: process.env.KEY } }

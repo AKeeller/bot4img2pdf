@@ -19,7 +19,7 @@ export class WaitingPhoto implements State {
 
 		else if (msg.photo)
 			return this.photo(downloadFolder, msg)
-		
+
 		return this.default(msg)
 
 	}
@@ -33,7 +33,7 @@ export class WaitingPhoto implements State {
 		bot.sendChatAction(msg.chat.id, 'upload_document')
 
 		const { exec } = require('child_process');
-		exec('img2pdf ' + downloadFolder + '/*.jpg', {encoding: 'buffer', maxBuffer: 1024 * 1024 * 50}, (err: any, stdout: any, stderr: any) => {
+		exec('img2pdf ' + downloadFolder + '/*.jpg', { encoding: 'buffer', maxBuffer: 1024 * 1024 * 50 }, (err: any, stdout: any, stderr: any) => {
 			if (err) {
 				console.error(err)
 				return
@@ -47,7 +47,7 @@ export class WaitingPhoto implements State {
 
 	reset(downloadFolder: string, msg: TelegramBot.Message): State | undefined {
 		const start: TelegramBot.KeyboardButton = { text: '/start' }
-		const reply_keyboard: TelegramBot.ReplyKeyboardMarkup = { keyboard:  [[start]], one_time_keyboard: false, resize_keyboard: true}
+		const reply_keyboard: TelegramBot.ReplyKeyboardMarkup = { keyboard: [[start]], one_time_keyboard: false, resize_keyboard: true }
 
 		Files.deleteFolder(downloadFolder)
 		bot.sendMessage(msg.chat.id, "Bot reset completed.", { reply_markup: reply_keyboard })
@@ -58,11 +58,11 @@ export class WaitingPhoto implements State {
 		bot.sendMessage(msg.chat.id, "Your sticker is very funny, but unfortunately I only accept photos!")
 		return this
 	}
-	
+
 	photo(downloadFolder: string, msg: TelegramBot.Message): State | undefined {
 		Files.createFolder(downloadFolder)
 		bot.downloadFile(msg.photo![2].file_id, downloadFolder)
-		
+
 		return this
 	}
 
@@ -70,5 +70,5 @@ export class WaitingPhoto implements State {
 		bot.sendMessage(msg.chat.id, "<b>Oops!</b> I was expecting a photo, but I received something else. Please, send me some pictures!", { parse_mode: 'HTML' })
 		return this
 	}
-	
+
 }
