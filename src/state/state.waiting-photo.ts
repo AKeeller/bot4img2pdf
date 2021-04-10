@@ -1,6 +1,7 @@
 import TelegramBot from "node-telegram-bot-api";
 import { State } from "./state";
 import { Files } from '../files'
+import { exec } from 'child_process'
 import { bot } from '../bot'
 
 export class WaitingPhoto implements State {
@@ -31,8 +32,7 @@ export class WaitingPhoto implements State {
 
 		bot.sendChatAction(msg.chat.id, 'upload_document')
 
-		const { exec } = require('child_process');
-		exec('img2pdf ' + downloadFolder + '/*.jpg', { encoding: 'buffer', maxBuffer: 1024 * 1024 * 50 }, (err: any, stdout: any, stderr: any) => {
+		exec('img2pdf ' + downloadFolder + '/*.jpg', { encoding: 'buffer', maxBuffer: 1024 * 1024 * 50 }, (err, stdout, stderr) => {
 			if (err) {
 				console.error(err)
 				return
