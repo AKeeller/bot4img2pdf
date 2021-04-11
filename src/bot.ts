@@ -5,7 +5,7 @@ const token = process.env.TOKEN
 if (!token)
 	throw new Error("Token not found. Create a .env file an put your token there.")
 
-let options
+let options: TelegramBot.ConstructorOptions
 
 if (!process.env.CERT || !process.env.KEY)
 	options = { polling: true }
