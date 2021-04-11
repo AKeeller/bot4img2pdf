@@ -3,16 +3,17 @@ import { State } from "./state";
 import { Files } from '../files'
 import { exec } from 'child_process'
 import { bot } from '../bot'
+import { BOT_CMD } from "../bot-cmd";
 
 export class WaitingPhoto implements State {
 
 	next(msg: TelegramBot.Message) {
 		const downloadFolder = (process.env.DOWNLOAD_FOLDER ?? './') + msg.chat.id + '/'
 
-		if (msg.text === "/done")
+		if (msg.text === BOT_CMD.DONE)
 			return this.done(downloadFolder, msg)
 
-		else if (msg.text === "/reset")
+		else if (msg.text === BOT_CMD.RESET)
 			return this.reset(downloadFolder, msg)
 
 		else if (msg.sticker)
@@ -26,7 +27,7 @@ export class WaitingPhoto implements State {
 
 	done(downloadFolder: string, msg: TelegramBot.Message) {
 		if (Files.isEmpty(downloadFolder)) {
-			bot.sendMessage(msg.chat.id, "Send me some photos and then use the /done command 😉")
+			bot.sendMessage(msg.chat.id, `Send me some photos and then use the ${BOT_CMD.DONE} command 😉`)
 			return this
 		}
 
@@ -45,7 +46,7 @@ export class WaitingPhoto implements State {
 	}
 
 	reset(downloadFolder: string, msg: TelegramBot.Message) {
-		const start: TelegramBot.KeyboardButton = { text: '/start' }
+		const start: TelegramBot.KeyboardButton = { text: BOT_CMD.START }
 		const reply_keyboard: TelegramBot.ReplyKeyboardMarkup = { keyboard: [[start]], one_time_keyboard: false, resize_keyboard: true }
 
 		Files.deleteFolder(downloadFolder)
