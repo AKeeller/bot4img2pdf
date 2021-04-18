@@ -8,7 +8,7 @@ import { BOT_CMD } from "../bot-cmd";
 export class WaitingPhoto implements State {
 
 	next(msg: TelegramBot.Message) {
-		const downloadFolder = (process.env.DOWNLOAD_FOLDER ?? './') + msg.chat.id + '/'
+		const downloadFolder = Files.tmp + '/' + msg.chat.id + '/'
 
 		if (msg.text === BOT_CMD.DONE)
 			return this.done(downloadFolder, msg)

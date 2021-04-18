@@ -38,12 +38,11 @@ This Telegram bot accepts images from the user and losslessly concatenates them 
 
 ### Env variables
 
-Variable name     | Type   | Default | Mandatory | Description
-------------------|--------|---------|-----------|------------------------------------------------------------------------------
-`TOKEN`           | string | `NULL`  | true      | It represents your bot token.
-`CERT`            | path   | `NULL`  | false     | If you are using a webhook, set your certificate's path.
-`KEY`             | path   | `NULL`  | false     | If you are using a webhook, set your key's path.
-`DOWNLOAD_FOLDER` | path   | `./`    | false     | Set where to download user images. `/tmp/img2pdf4bot` would be a nice choice.
+Variable name | Type   | Default | Mandatory | Description
+--------------|--------|---------|-----------|---------------------------------------------------------
+`TOKEN`       | string | `NULL`  | true      | It represents your bot token.
+`CERT`        | path   | `NULL`  | false     | If you are using a webhook, set your certificate's path.
+`KEY`         | path   | `NULL`  | false     | If you are using a webhook, set your key's path.
 
 #### How to set env variables during development
 
@@ -53,7 +52,6 @@ Variable name     | Type   | Default | Mandatory | Description
 
     ```dotenv
     TOKEN='123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11'
-    DOWNLOAD_FOLDER='/tmp/img2pdf4bot/'
     ```
 
 3. Run with `node -r dotenv/config dist/index.js`.
