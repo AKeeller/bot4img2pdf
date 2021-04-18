@@ -12,7 +12,8 @@ export module Files {
 	}
 
 	export function isEmpty(folder: string) {
-		return !fs.existsSync(folder) || (fs.existsSync(folder) && fs.readdirSync(folder).length <= 0)
+		const folderExists = fs.existsSync(folder)
+		return !folderExists || (folderExists && fs.readdirSync(folder).length <= 0)
 	}
 
 	export function renameFile(filePath: string, newName: string, keepExtension = false) {
