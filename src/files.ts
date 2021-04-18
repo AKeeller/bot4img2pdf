@@ -8,12 +8,7 @@ export module Files {
 	}
 
 	export function deleteFolder(folder: string) {
-		fs.rm(folder, { recursive: true, force: true }, (err) => {
-			if (err)
-				console.error(err)
-			else
-				console.log("Removed folder " + folder)
-		})
+		fs.rm(folder, { recursive: true, force: true }, (err) => { if (err) console.error(err) })
 	}
 
 	export function isEmpty(folder: string) {
