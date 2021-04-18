@@ -1,9 +1,10 @@
+import TelegramBot from "node-telegram-bot-api";
 import { bot } from "./bot";
 import { State } from "./state/state";
 import { StartState } from "./state/state.start";
 
 // Chat ID -- State
-const chats = new Map<number, State>()
+const chats = new Map<TelegramBot.Message['chat']['id'], State>()
 
 bot.on('message', (msg) => {
 	const chatId = msg.chat.id
