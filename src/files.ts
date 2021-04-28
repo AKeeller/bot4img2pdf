@@ -7,7 +7,7 @@ export module Files {
 	export const tmp = fs.mkdtempSync(path.join(tmpdir(), 'bot4img2pdf-'))
 
 	export function createFolder(folder: string) {
-		fs.mkdir(folder + '/', { recursive: true }, (err) => { if (err) throw err })
+		fs.mkdirSync(folder + '/', { recursive: true })
 	}
 
 	export function deleteFolder(folder: string) {
