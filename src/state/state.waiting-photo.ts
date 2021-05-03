@@ -61,7 +61,7 @@ export class WaitingPhoto implements State {
 
 	photo(downloadFolder: string, msg: TelegramBot.Message) {
 		Files.createFolder(downloadFolder)
-		bot.downloadFile(msg.photo![2].file_id, downloadFolder)
+		bot.downloadFile(msg.photo![msg.photo!.length - 1].file_id, downloadFolder)
 		.then((filePath) => Files.renameFile(filePath, String(msg.message_id), true))
 
 		return this
