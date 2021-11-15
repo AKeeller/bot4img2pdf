@@ -4,6 +4,7 @@
   "description": "Telegram bot for img2pdf",
   "main": "dist/index.js",
   "scripts": {
+    "build": "tsc",
     "start": "tsc && node -r dotenv/config dist/index.js"
   },
   "author": "Alberto Amoruso",
