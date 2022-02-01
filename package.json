@@ -10,11 +10,11 @@
   "author": "Alberto Amoruso",
   "license": "ISC",
   "devDependencies": {
-    "dotenv": "^10.0.0",
-    "typescript": "^4.5.2"
+    "dotenv": "^15.0.0",
+    "typescript": "^4.5.5"
   },
   "dependencies": {
-    "@types/node-telegram-bot-api": "^0.53.2",
-    "node-telegram-bot-api": "^0.54.0"
+    "@types/node-telegram-bot-api": "^0.53.6",
+    "node-telegram-bot-api": "^0.56.0"
   }
 }
