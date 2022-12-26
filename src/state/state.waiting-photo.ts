@@ -5,7 +5,7 @@ import { Files } from '../files'
 import { exec } from 'child_process'
 import { BOT_CMD } from "../bot-cmd";
 
-export class WaitingPhoto implements State {
+export default class WaitingPhoto implements State {
 
 	next(msg: TelegramBot.Message) {
 		const downloadFolder = Files.tmp + '/' + msg.chat.id + '/'
