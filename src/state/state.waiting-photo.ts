@@ -42,7 +42,7 @@ export default class WaitingPhoto implements State {
 				.then(() => Files.deleteFolder(downloadFolder))
 		})
 
-		return new WaitingPhoto()
+		return this
 	}
 
 	reset(downloadFolder: string, msg: TelegramBot.Message) {
