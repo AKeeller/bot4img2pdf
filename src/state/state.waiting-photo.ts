@@ -39,7 +39,7 @@ export default class WaitingPhoto implements State {
 				return
 			}
 			bot.sendDocument(msg.chat.id, stdout, {}, { filename: 'file.pdf', contentType: 'application/pdf' })
-			Files.deleteFolder(downloadFolder)
+				.then(() => Files.deleteFolder(downloadFolder))
 		})
 
 		return new WaitingPhoto()
@@ -62,7 +62,7 @@ export default class WaitingPhoto implements State {
 	photo(downloadFolder: string, msg: TelegramBot.Message) {
 		Files.createFolder(downloadFolder)
 		bot.downloadFile(msg.photo![msg.photo!.length - 1].file_id, downloadFolder)
-		.then((filePath) => Files.renameFile(filePath, String(msg.message_id), true))
+			.then((filePath) => Files.renameFile(filePath, String(msg.message_id), true))
 
 		return this
 	}
