@@ -1,5 +1,5 @@
 import TelegramBot from "node-telegram-bot-api";
-import { bot } from "./bot";
+import bot from "./bot";
 import { State } from "./state/state";
 import { StartState } from "./state/state.start";
 

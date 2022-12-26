@@ -12,4 +12,5 @@ if (!process.env.CERT || !process.env.KEY)
 else
 	options = { webHook: { cert: process.env.CERT, key: process.env.KEY } }
 
-export const bot = new TelegramBot(token, options)
+const bot = new TelegramBot(token, options)
+export default bot;
