@@ -1,6 +1,6 @@
 import TelegramBot from "node-telegram-bot-api";
 import bot from '../bot'
-import { State } from "./state";
+import State from "./state";
 import { Files } from '../files'
 import { exec } from 'child_process'
 import { BOT_CMD } from "../bot-cmd";

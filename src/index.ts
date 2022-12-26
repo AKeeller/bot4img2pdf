@@ -1,6 +1,6 @@
 import TelegramBot from "node-telegram-bot-api";
 import bot from "./bot";
-import { State } from "./state/state";
+import State from "./state/state";
 import { StartState } from "./state/state.start";
 
 const chats = new Map<TelegramBot.Message['chat']['id'], State>()

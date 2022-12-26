@@ -1,6 +1,6 @@
 import TelegramBot from "node-telegram-bot-api"
 import bot from '../bot'
-import { State } from "./state"
+import State from "./state"
 import { WaitingPhoto } from "./state.waiting-photo"
 import { BOT_CMD } from "../bot-cmd"
 
