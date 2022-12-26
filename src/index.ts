@@ -3,7 +3,6 @@ import { bot } from "./bot";
 import { State } from "./state/state";
 import { StartState } from "./state/state.start";
 
-// Chat ID -- State
 const chats = new Map<TelegramBot.Message['chat']['id'], State>()
 
 bot.on('message', (msg) => {
