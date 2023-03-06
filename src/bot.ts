@@ -7,7 +7,9 @@ if (!token)
 
 let options: TelegramBot.ConstructorOptions
 
-if (!process.env.CERT || !process.env.KEY)
+if (process.env.USE_WEBHOOK)
+	options = { webHook: true }
+else if (!process.env.CERT || !process.env.KEY)
 	options = { polling: true }
 else
 	options = { webHook: { cert: process.env.CERT, key: process.env.KEY } }
