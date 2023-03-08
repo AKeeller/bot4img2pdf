@@ -38,12 +38,12 @@ This Telegram bot accepts images from the user and losslessly concatenates them 
 
 ### Env variables
 
-Variable name | Type    | Default | Mandatory | Description
---------------|---------|---------|-----------|-------------------------------------------------------------------------------------------
-`TOKEN`       | string  | `NULL`  | true      | It represents your bot token.
-`USE_WEBHOOK` | boolean | `NULL`  | false     | Set to `1` if you want webhooks and you do not need to upload a custom certificate or key.
-`CERT`        | path    | `NULL`  | false     | If you are using a webhook, set your certificate's path.
-`KEY`         | path    | `NULL`  | false     | If you are using a webhook, set your key's path.
+Variable name | Type   | Default | Mandatory | Description
+--------------|--------|---------|-----------|-----------------------------------------------------------------
+`TOKEN`       | string | `NULL`  | true      | It represents your bot token.
+`WEBHOOK_URL` | string | `NULL`  | false     | HTTPS URL to send updates to. E.g.: `https://example.com:8443`.
+`CERT`        | path   | `NULL`  | false     | If you need a custom certificate for your webhook, set its path.
+`KEY`         | path   | `NULL`  | false     | If you need a custom key for your webhook, set its path.
 
 #### How to set env variables during development
 
