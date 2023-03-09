@@ -15,4 +15,6 @@ const bot = new TelegramBot(token, options)
 
 postSetupRoutine(bot)
 
+console.log("Bot started.")
+
 export default bot;
