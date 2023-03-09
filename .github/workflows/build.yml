@@ -2,7 +2,7 @@ name: Build
 on: push
 
 jobs:
-  Build:
+  build:
     strategy:
       matrix:
         node-version: [latest, lts/*]
