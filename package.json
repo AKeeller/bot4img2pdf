@@ -1,6 +1,5 @@
 {
   "name": "bot4img2pdf",
-  "version": "1.0.0",
   "description": "Telegram bot for img2pdf",
   "main": "dist/index.js",
   "scripts": {
