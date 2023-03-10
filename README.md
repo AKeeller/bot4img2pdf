@@ -56,3 +56,32 @@ Variable name | Type   | Default | Mandatory | Description
     ```
 
 3. Run with `node -r dotenv/config dist/index.js`.
+
+## Docker
+
+It's possible to run [@img2pdf4bot](https://t.me/img2pdf4bot) as a Docker container.
+
+### Docker CLI
+
+```sh
+docker run -d --name bot4img2pdf --restart unless-stopped -p 8443:8443 --env TOKEN=123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11 --env WEBHOOK_URL=https://telegram.example.com:8443 --env CERT=/certificate/public.pem --env KEY=/certificate/private.key -v /path/to/certificate:/certificate ghcr.io/akeeller/bot4img2pdf
+```
+
+### Docker Compose
+
+```yaml
+services:
+  bot4img2pdf:
+    image: ghcr.io/akeeller/bot4img2pdf
+    container_name: bot4img2pdf
+    restart: unless-stopped
+    ports:
+      - 8443:8443
+    environment:
+      TOKEN: 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11
+      WEBHOOK_URL: https://telegram.example.com:8443 # Optional
+      CERT: /certificate/public.pem ## Optional
+      KEY: /certificate/private.key ## Optional
+    volumes:
+      - /path/to/certificate:/certificate # Optional
+```
