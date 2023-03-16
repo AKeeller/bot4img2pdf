@@ -24,8 +24,8 @@ COPY package*.json .
 RUN npm ci --only=production
 
 RUN \
-	apt update && \
-	apt install -y img2pdf curl
+	apt-get update && \
+	apt-get install -y img2pdf curl
 
 
 HEALTHCHECK --interval=60s --timeout=30s --start-period=30s --retries=3 CMD [ "curl", "-v", "localhost:8443" ]
