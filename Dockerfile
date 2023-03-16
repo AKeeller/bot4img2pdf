@@ -1,5 +1,7 @@
 FROM node:alpine as build-env
 
+WORKDIR /workdir
+
 COPY src src
 COPY tsconfig.json package*.json ./
 
@@ -16,7 +18,7 @@ EXPOSE 8443
 
 WORKDIR /opt/bot4img2pdf
 
-COPY --from=build-env dist .
+COPY --from=build-env /workdir/dist .
 COPY package*.json .
 
 RUN npm ci --only=production
