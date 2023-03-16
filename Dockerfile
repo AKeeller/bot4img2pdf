@@ -25,7 +25,7 @@ RUN npm ci --only=production
 
 RUN \
 	apt-get update && \
-	apt-get install -y img2pdf curl && \
+	apt-get install --no-install-recommends -y img2pdf curl && \
 	apt-get clean && \
 	rm -rf /var/lib/apt/lists/*
 
