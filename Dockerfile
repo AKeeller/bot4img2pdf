@@ -25,7 +25,9 @@ RUN npm ci --only=production
 
 RUN \
 	apt-get update && \
-	apt-get install -y img2pdf curl
+	apt-get install -y img2pdf curl && \
+	apt-get clean && \
+	rm -rf /var/lib/apt/lists/*
 
 
 HEALTHCHECK --interval=60s --timeout=30s --start-period=30s --retries=3 CMD [ "curl", "-v", "localhost:8443" ]
