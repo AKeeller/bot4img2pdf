@@ -9,7 +9,7 @@
     "start": "npx tsc && node -r dotenv/config dist/index.js"
   },
   "devDependencies": {
-    "dotenv": "^16.0.3",
+    "dotenv": "^16.4.7",
     "typescript": "^4.9.5"
   },
   "dependencies": {
