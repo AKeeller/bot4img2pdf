@@ -1,4 +1,4 @@
-FROM node:alpine as build-env
+FROM node:lts as build-env
 
 WORKDIR /workdir
 
