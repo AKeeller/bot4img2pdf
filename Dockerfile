@@ -1,4 +1,4 @@
-FROM node:lts AS build-env
+FROM node:24.4.1 AS build-env
 
 WORKDIR /workdir
 
@@ -10,7 +10,7 @@ RUN \
 	npm run build
 
 
-FROM node:lts-slim AS runtime
+FROM node:24.4.1-slim AS runtime
 
 LABEL author="Alberto Amoruso"
 
