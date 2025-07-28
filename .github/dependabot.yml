@@ -10,3 +10,8 @@ updates:
     directory: "/"
     schedule:
       interval: "quarterly"
+
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "quarterly"
