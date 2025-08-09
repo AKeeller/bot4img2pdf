@@ -6,12 +6,13 @@ import { Files } from '../files'
 import { exec } from 'child_process'
 
 export default class WaitingPhoto implements State {
+	pendingDownloads = new Map<number, Promise<any>[]>();
 
-	next(msg: TelegramBot.Message) {
+	async next(msg: TelegramBot.Message) {
 		const downloadFolder = Files.tmp + '/' + msg.chat.id + '/'
 
 		if (msg.text === BOT_CMD.DONE)
-			return this.done(downloadFolder, msg)
+			return await this.done(downloadFolder, msg)
 
 		else if (msg.text === BOT_CMD.RESET)
 			return this.reset(downloadFolder, msg)
@@ -25,7 +26,12 @@ export default class WaitingPhoto implements State {
 		return this.default(msg)
 	}
 
-	done(downloadFolder: string, msg: TelegramBot.Message) {
+	async done(downloadFolder: string, msg: TelegramBot.Message) {
+		if (this.pendingDownloads.has(msg.chat.id)) {
+			await Promise.allSettled(this.pendingDownloads.get(msg.chat.id)!)
+			this.pendingDownloads.delete(msg.chat.id);
+		}
+
 		if (Files.isEmpty(downloadFolder)) {
 			bot.sendMessage(msg.chat.id, `Send me some photos and then use the ${BOT_CMD.DONE} command 😉`)
 			return this
@@ -61,8 +67,14 @@ export default class WaitingPhoto implements State {
 
 	photo(downloadFolder: string, msg: TelegramBot.Message) {
 		Files.createFolder(downloadFolder)
-		bot.downloadFile(msg.photo![msg.photo!.length - 1].file_id, downloadFolder)
+
+		const downloadPromise = bot.downloadFile(msg.photo![msg.photo!.length - 1].file_id, downloadFolder)
 			.then((filePath) => Files.renameFile(filePath, String(msg.message_id), true))
+
+		if (!this.pendingDownloads.has(msg.chat.id))
+			this.pendingDownloads.set(msg.chat.id, [])
+
+		this.pendingDownloads.get(msg.chat.id)!.push(downloadPromise)
 
 		return this
 	}
