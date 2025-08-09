@@ -8,11 +8,11 @@ process.env.NTBA_FIX_350 = '1';
 
 const chats = new Map<TelegramBot.Message['chat']['id'], State>()
 
-bot.on('message', (msg) => {
+bot.on('message', async (msg) => {
 	const chatId = msg.chat.id
 
 	const state = chats.get(chatId) ?? new StartState()
-	const next = state.next(msg)
+	const next = await state.next(msg)
 
 	next ? chats.set(chatId, next) : chats.delete(chatId)
 })
