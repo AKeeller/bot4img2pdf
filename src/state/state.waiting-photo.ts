@@ -32,7 +32,7 @@ export default class WaitingPhoto implements State {
 			this.pendingDownloads.delete(msg.chat.id);
 		}
 
-		if (Files.isEmpty(downloadFolder)) {
+		if (await Files.isEmpty(downloadFolder)) {
 			bot.sendMessage(msg.chat.id, `Send me some photos and then use the ${BOT_CMD.DONE} command 😉`)
 			return this
 		}
