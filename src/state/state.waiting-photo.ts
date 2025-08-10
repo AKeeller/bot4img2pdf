@@ -70,6 +70,10 @@ export default class WaitingPhoto implements State {
 
 		const downloadPromise = bot.downloadFile(msg.photo![msg.photo!.length - 1].file_id, downloadFolder)
 			.then((filePath) => Files.renameFile(filePath, String(msg.message_id), true))
+			.catch((err) => {
+				console.error('Error downloading or renaming photo: ', err)
+				throw err
+			})
 
 		if (!this.pendingDownloads.has(msg.chat.id))
 			this.pendingDownloads.set(msg.chat.id, [])
