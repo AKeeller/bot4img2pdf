@@ -21,7 +21,7 @@ export default class WaitingPhoto implements State {
 			return this.sticker(msg)
 
 		else if (msg.photo)
-			return this.photo(downloadFolder, msg)
+			return await this.photo(downloadFolder, msg)
 
 		return this.default(msg)
 	}
@@ -65,8 +65,8 @@ export default class WaitingPhoto implements State {
 		return this
 	}
 
-	photo(downloadFolder: string, msg: TelegramBot.Message) {
-		Files.createFolder(downloadFolder)
+	async photo(downloadFolder: string, msg: TelegramBot.Message) {
+		await Files.createFolder(downloadFolder)
 
 		const downloadPromise = bot.downloadFile(msg.photo![msg.photo!.length - 1].file_id, downloadFolder)
 			.then((filePath) => Files.renameFile(filePath, String(msg.message_id), true))
