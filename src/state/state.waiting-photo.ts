@@ -6,7 +6,7 @@ import { Files } from '../files'
 import { exec } from 'child_process'
 
 export default class WaitingPhoto implements State {
-	pendingDownloads = new Map<number, Promise<any>[]>();
+	private pendingDownloads: Promise<void>[] = []
 
 	async next(msg: TelegramBot.Message) {
 		const downloadFolder = Files.tmp + '/' + msg.chat.id + '/'
@@ -27,10 +27,8 @@ export default class WaitingPhoto implements State {
 	}
 
 	async done(downloadFolder: string, msg: TelegramBot.Message) {
-		if (this.pendingDownloads.has(msg.chat.id)) {
-			await Promise.allSettled(this.pendingDownloads.get(msg.chat.id)!)
-			this.pendingDownloads.delete(msg.chat.id);
-		}
+		await Promise.allSettled(this.pendingDownloads)
+		this.pendingDownloads = []
 
 		if (await Files.isEmpty(downloadFolder)) {
 			bot.sendMessage(msg.chat.id, `Send me some photos and then use the ${BOT_CMD.DONE} command 😉`)
@@ -75,10 +73,7 @@ export default class WaitingPhoto implements State {
 				throw err
 			})
 
-		if (!this.pendingDownloads.has(msg.chat.id))
-			this.pendingDownloads.set(msg.chat.id, [])
-
-		this.pendingDownloads.get(msg.chat.id)!.push(downloadPromise)
+		this.pendingDownloads.push(downloadPromise)
 
 		return this
 	}
