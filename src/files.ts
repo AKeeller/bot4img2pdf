@@ -17,7 +17,7 @@ export module Files {
 
 	export async function isEmpty(folder: string) {
 		const folderExists = fs.existsSync(folder)
-		return !folderExists || (folderExists && (await promises.readdir(folder)).length <= 0)
+		return !folderExists || (await promises.readdir(folder)).length === 0
 	}
 
 	export async function renameFile(filePath: string, newName: string, keepExtension = false) {
