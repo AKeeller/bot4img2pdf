@@ -13,7 +13,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@types/node-telegram-bot-api": "^0.64.11",
+    "@types/node-telegram-bot-api": "^0.64.14",
     "node-telegram-bot-api": "^0.67.0"
   }
 }
