@@ -1,4 +1,4 @@
-FROM node:25.2.1 AS build-env
+FROM node:25.8.2 AS build-env
 
 WORKDIR /workdir
 
@@ -10,7 +10,7 @@ RUN \
 	npm run build
 
 
-FROM node:25.2.1-slim AS runtime
+FROM node:25.8.2-slim AS runtime
 
 LABEL author="Alberto Amoruso"
 
