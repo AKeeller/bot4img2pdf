@@ -1,7 +1,7 @@
-module BOT_CMD {
-	export const START = '/start'
-	export const DONE = '/done'
-	export const RESET = '/reset'
-}
+const BOT_CMD = {
+	START: '/start',
+	DONE: '/done',
+	RESET: '/reset',
+} as const
 
 export default BOT_CMD
