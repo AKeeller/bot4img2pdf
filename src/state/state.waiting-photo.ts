@@ -9,7 +9,7 @@ export default class WaitingPhoto implements State {
 	private pendingDownloads: Promise<void>[] = []
 
 	async next(msg: TelegramBot.Message) {
-		const downloadFolder = Files.tmp + '/' + msg.chat.id + '/'
+		const downloadFolder = Files.getTmp() + '/' + msg.chat.id + '/'
 
 		if (msg.text === BOT_CMD.DONE)
 			return await this.done(downloadFolder, msg)
