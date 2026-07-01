@@ -1,8 +1,8 @@
-import TelegramBot from "node-telegram-bot-api";
+import type { TelegramBotOptions } from "node-telegram-bot-api";
 import OptionsFactory from "./options-factory";
 
 class WebhookOptionsFactory implements OptionsFactory {
-	createOptions(): TelegramBot.ConstructorOptions {
+	createOptions(): TelegramBotOptions {
 		if (process.env.CERT && process.env.KEY)
 			return { webHook: { cert: process.env.CERT, key: process.env.KEY } }
 

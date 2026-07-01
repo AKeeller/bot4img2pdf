@@ -1,4 +1,4 @@
-import TelegramBot from "node-telegram-bot-api";
+import type { KeyboardButton, Message, ReplyKeyboardMarkup } from "node-telegram-bot-api";
 import bot from '../bot'
 import BOT_CMD from "../bot-cmd";
 import State from "./state";
@@ -8,7 +8,7 @@ import { exec } from 'child_process'
 export default class WaitingPhoto implements State {
 	private pendingDownloads: Promise<void>[] = []
 
-	async next(msg: TelegramBot.Message) {
+	async next(msg: Message) {
 		const downloadFolder = Files.getTmp() + '/' + msg.chat.id + '/'
 
 		if (msg.text === BOT_CMD.DONE)
@@ -26,7 +26,7 @@ export default class WaitingPhoto implements State {
 		return this.default(msg)
 	}
 
-	async done(downloadFolder: string, msg: TelegramBot.Message) {
+	async done(downloadFolder: string, msg: Message) {
 		await Promise.allSettled(this.pendingDownloads)
 		this.pendingDownloads = []
 
@@ -49,9 +49,9 @@ export default class WaitingPhoto implements State {
 		return this
 	}
 
-	reset(downloadFolder: string, msg: TelegramBot.Message) {
-		const start: TelegramBot.KeyboardButton = { text: BOT_CMD.START }
-		const reply_keyboard: TelegramBot.ReplyKeyboardMarkup = { keyboard: [[start]], one_time_keyboard: false, resize_keyboard: true }
+	reset(downloadFolder: string, msg: Message) {
+		const start: KeyboardButton = { text: BOT_CMD.START }
+		const reply_keyboard: ReplyKeyboardMarkup = { keyboard: [[start]], one_time_keyboard: false, resize_keyboard: true }
 
 		this.pendingDownloads = []
 		Files.deleteFolder(downloadFolder)
@@ -59,12 +59,12 @@ export default class WaitingPhoto implements State {
 		return undefined
 	}
 
-	sticker(msg: TelegramBot.Message) {
+	sticker(msg: Message) {
 		bot.sendMessage(msg.chat.id, "Your sticker is very funny, but unfortunately I only accept photos!")
 		return this
 	}
 
-	async photo(downloadFolder: string, msg: TelegramBot.Message) {
+	async photo(downloadFolder: string, msg: Message) {
 		await Files.createFolder(downloadFolder)
 
 		const downloadPromise = bot.downloadFile(msg.photo![msg.photo!.length - 1].file_id, downloadFolder)
@@ -79,7 +79,7 @@ export default class WaitingPhoto implements State {
 		return this
 	}
 
-	default(msg: TelegramBot.Message) {
+	default(msg: Message) {
 		bot.sendMessage(msg.chat.id, "<b>Oops!</b> I was expecting a photo, but I received something else. Please, send me some pictures!", { parse_mode: 'HTML' })
 		return this
 	}

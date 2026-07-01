@@ -1,4 +1,4 @@
-import TelegramBot from "node-telegram-bot-api"
+import type { KeyboardButton, Message, ReplyKeyboardMarkup } from "node-telegram-bot-api"
 import bot from '../bot'
 import BOT_CMD from "../bot-cmd"
 import State from "./state"
@@ -9,11 +9,11 @@ export class StartState implements State {
 	private readonly welcomeMessage =
 		`<b>Welcome! 👋</b>\nSend me as many photos 📷 as you want. When you are ready to generate the .pdf, just use the ${BOT_CMD.DONE} command 👍`
 
-	private done: TelegramBot.KeyboardButton = { text: BOT_CMD.DONE }
-	private reset: TelegramBot.KeyboardButton = { text: BOT_CMD.RESET }
-	private reply_keyboard: TelegramBot.ReplyKeyboardMarkup = { keyboard: [[this.done, this.reset]], one_time_keyboard: false, resize_keyboard: true }
+	private done: KeyboardButton = { text: BOT_CMD.DONE }
+	private reset: KeyboardButton = { text: BOT_CMD.RESET }
+	private reply_keyboard: ReplyKeyboardMarkup = { keyboard: [[this.done, this.reset]], one_time_keyboard: false, resize_keyboard: true }
 
-	next(msg: TelegramBot.Message): State {
+	next(msg: Message): State {
 
 		if (msg.text === BOT_CMD.START) {
 			bot.sendMessage(msg.chat.id, this.welcomeMessage, { parse_mode: 'HTML', reply_markup: this.reply_keyboard })

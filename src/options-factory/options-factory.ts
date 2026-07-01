@@ -1,7 +1,7 @@
-import TelegramBot from "node-telegram-bot-api";
+import type { TelegramBotOptions } from "node-telegram-bot-api";
 
 interface OptionsFactory {
-	createOptions(): TelegramBot.ConstructorOptions;
+	createOptions(): TelegramBotOptions;
 }
 
 export default OptionsFactory
