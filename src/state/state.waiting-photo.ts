@@ -1,5 +1,5 @@
-import type { KeyboardButton, Message, ReplyKeyboardMarkup } from "node-telegram-bot-api";
-import bot from '../bot'
+import { InputFile, type KeyboardButton, type Message, type ReplyKeyboardMarkup } from "node-telegram-bot-api";
+import bot, { createTelegramFileUrl } from '../bot'
 import BOT_CMD from "../bot-cmd";
 import State from "./state";
 import * as Files from '../files'
@@ -31,19 +31,23 @@ export default class WaitingPhoto implements State {
 		this.pendingDownloads = []
 
 		if (await Files.isEmpty(downloadFolder)) {
-			bot.sendMessage(msg.chat.id, `Send me some photos and then use the ${BOT_CMD.DONE} command 😉`)
+			void bot.api.sendMessage({ chat_id: msg.chat.id, text: `Send me some photos and then use the ${BOT_CMD.DONE} command 😉` })
 			return this
 		}
 
-		bot.sendChatAction(msg.chat.id, 'upload_document')
+		void bot.api.sendChatAction({ chat_id: msg.chat.id, action: 'upload_document' })
 
 		exec('img2pdf ' + downloadFolder + '/*.jpg', { encoding: 'buffer', maxBuffer: 1024 * 1024 * 50 }, (err, stdout, stderr) => {
 			if (err) {
 				console.error(err)
 				return
 			}
-			bot.sendDocument(msg.chat.id, stdout, {}, { filename: 'file.pdf', contentType: 'application/pdf' })
+			bot.api.sendDocument({
+				chat_id: msg.chat.id,
+				document: new InputFile(stdout, { filename: 'file.pdf', contentType: 'application/pdf' }),
+			})
 				.then(() => Files.deleteFolder(downloadFolder))
+				.catch((sendError: unknown) => console.error('Error sending PDF:', sendError))
 		})
 
 		return this
@@ -54,25 +58,30 @@ export default class WaitingPhoto implements State {
 		const reply_keyboard: ReplyKeyboardMarkup = { keyboard: [[start]], one_time_keyboard: false, resize_keyboard: true }
 
 		this.pendingDownloads = []
-		Files.deleteFolder(downloadFolder)
-		bot.sendMessage(msg.chat.id, "Bot reset completed.", { reply_markup: reply_keyboard })
+		void Files.deleteFolder(downloadFolder)
+		void bot.api.sendMessage({ chat_id: msg.chat.id, text: "Bot reset completed.", reply_markup: reply_keyboard })
 		return undefined
 	}
 
 	sticker(msg: Message) {
-		bot.sendMessage(msg.chat.id, "Your sticker is very funny, but unfortunately I only accept photos!")
+		void bot.api.sendMessage({ chat_id: msg.chat.id, text: "Your sticker is very funny, but unfortunately I only accept photos!" })
 		return this
 	}
 
 	async photo(downloadFolder: string, msg: Message) {
 		await Files.createFolder(downloadFolder)
 
-		const downloadPromise = bot.downloadFile(msg.photo![msg.photo!.length - 1].file_id, downloadFolder)
-			.then((filePath) => Files.renameFile(filePath, String(msg.message_id), true))
-			.catch((err) => {
-				console.error('Error downloading or renaming photo: ', err)
-				throw err
-			})
+		const photo = msg.photo![msg.photo!.length - 1]
+		const destination = `${downloadFolder}${msg.message_id}.jpg`
+		const downloadPromise = (async () => {
+			const file = await bot.api.getFile({ file_id: photo.file_id })
+			if (!file.file_path)
+				throw new Error('Telegram did not return a file path for the photo.')
+			await Files.downloadFromUrl(createTelegramFileUrl(file.file_path), destination)
+		})().catch((err: unknown) => {
+			console.error('Error downloading photo:', err)
+			throw err
+		})
 
 		this.pendingDownloads.push(downloadPromise)
 
@@ -80,7 +89,7 @@ export default class WaitingPhoto implements State {
 	}
 
 	default(msg: Message) {
-		bot.sendMessage(msg.chat.id, "<b>Oops!</b> I was expecting a photo, but I received something else. Please, send me some pictures!", { parse_mode: 'HTML' })
+		void bot.api.sendMessage({ chat_id: msg.chat.id, text: "<b>Oops!</b> I was expecting a photo, but I received something else. Please, send me some pictures!", parse_mode: 'HTML' })
 		return this
 	}
 
