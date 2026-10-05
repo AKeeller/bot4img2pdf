@@ -1,20 +1,29 @@
-import TelegramBot from "node-telegram-bot-api"
+import { Bot } from "node-telegram-bot-api"
+import { run } from "node-telegram-bot-api/node"
 import postSetupRoutine from "./bot-post-setup"
-import PollingOptionsFactory from "./options-factory/polling-options-factory"
-import WebhookOptionsFactory from "./options-factory/webhook-options-factory"
 
 const token = process.env.TOKEN
 
 if (!token)
 	throw new Error("Token not found. Create a .env file an put your token there.")
 
-const factory = process.env.WEBHOOK_URL ? new WebhookOptionsFactory() : new PollingOptionsFactory()
-const options = factory.createOptions()
+const botToken = token
+const bot = new Bot(botToken)
 
-const bot = new TelegramBot(token, options)
+export function createTelegramFileUrl(filePath: string): string {
+	const encodedFilePath = filePath.split("/").map(encodeURIComponent).join("/")
+	return `https://api.telegram.org/file/bot${botToken}/${encodedFilePath}`
+}
 
-postSetupRoutine(bot)
+export async function startBot(): Promise<void> {
+	const webhookBaseUrl = process.env.WEBHOOK_URL
+	if (webhookBaseUrl) {
+		await postSetupRoutine(bot, botToken, webhookBaseUrl)
+		return
+	}
 
-console.log("Bot started.")
+	console.log("Bot started.")
+	await run(bot)
+}
 
 export default bot;

@@ -16,11 +16,11 @@ export class StartState implements State {
 	next(msg: Message): State {
 
 		if (msg.text === BOT_CMD.START) {
-			bot.sendMessage(msg.chat.id, this.welcomeMessage, { parse_mode: 'HTML', reply_markup: this.reply_keyboard })
+			void bot.api.sendMessage({ chat_id: msg.chat.id, text: this.welcomeMessage, parse_mode: 'HTML', reply_markup: this.reply_keyboard })
 			return new WaitingPhoto()
 		}
 
-		bot.sendMessage(msg.chat.id, `Use ${BOT_CMD.START} to start.`)
+		void bot.api.sendMessage({ chat_id: msg.chat.id, text: `Use ${BOT_CMD.START} to start.` })
 		return this
 	}
 

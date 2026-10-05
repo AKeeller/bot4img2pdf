@@ -23,10 +23,15 @@ export async function isEmpty(folder: string) {
 	return !folderExists || (await fsPromises.readdir(folder)).length === 0
 }
 
-export async function renameFile(filePath: string, newName: string, keepExtension = false) {
-	const dirname = path.dirname(filePath)
-	const extension = path.extname(filePath)
-	const newFilePath = dirname + '/' + newName + (keepExtension ? extension : '')
+export async function downloadFromUrl(url: string, destination: string): Promise<void> {
+	try {
+		const response = await fetch(url)
+		if (!response.ok)
+			throw new Error(`HTTP ${response.status}`)
 
-	return fsPromises.rename(filePath, newFilePath)
+		await fsPromises.writeFile(destination, Buffer.from(await response.arrayBuffer()))
+	} catch {
+		await fsPromises.rm(destination, { force: true })
+		throw new Error("Failed to download the Telegram file.")
+	}
 }
