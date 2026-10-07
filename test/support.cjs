@@ -46,12 +46,12 @@ const photo = (chatId, fileId, messageId = 1) => ({
 function fixture(t, options = {}) {
 	const root = mkdtempSync(path.join(tmpdir(), 'bot-test-'))
 	t.after(() => fs.rm(root, { recursive: true, force: true }))
-	t.mock.method(globalThis, 'fetch', async () => { throw new Error('Unexpected network request in state test') })
+	t.mock.method(globalThis, 'fetch', options.fetch ?? (async () => { throw new Error('Unexpected network request in state test') }))
 	t.mock.method(Files, 'getTmp', () => root)
 	t.mock.method(api, 'sendMessage', async () => {})
 	t.mock.method(api, 'sendChatAction', async () => {})
 	t.mock.method(api, 'getFile', async ({ file_id }) => ({ file_path: file_id }))
-	t.mock.method(Files, 'downloadFromUrl', async (url, destination) => {
+	if (!options.realDownloads) t.mock.method(Files, 'downloadFromUrl', async (url, destination) => {
 		const fileId = new URL(url).pathname.slice(1)
 		await options.beforeDownload?.(fileId)
 		await fs.writeFile(destination, fileId)
@@ -82,20 +82,26 @@ function fixture(t, options = {}) {
 
 // Reload an entrypoint under scoped dependency stubs, then restore every cache
 // entry. Unlike a global require hook, this leaves unrelated modules untouched.
+const moduleSnapshots = new WeakMap()
 function loadFresh(t, filename, overrides = {}) {
 	const target = require.resolve(filename)
-	const entries = new Map([[target, require.cache[target]]])
+	let entries = moduleSnapshots.get(t)
+	if (!entries) {
+		entries = new Map()
+		moduleSnapshots.set(t, entries)
+		t.after(() => {
+			for (const [id, entry] of entries) {
+				if (entry) require.cache[id] = entry
+				else delete require.cache[id]
+			}
+		})
+	}
+	if (!entries.has(target)) entries.set(target, require.cache[target])
 	for (const [name, exports] of Object.entries(overrides)) {
 		const id = require.resolve(name)
-		entries.set(id, require.cache[id])
+		if (!entries.has(id)) entries.set(id, require.cache[id])
 		require.cache[id] = { id, filename: id, loaded: true, exports }
 	}
-	t.after(() => {
-		for (const [id, entry] of entries) {
-			if (entry) require.cache[id] = entry
-			else delete require.cache[id]
-		}
-	})
 	delete require.cache[target]
 	return require(target)
 }
