@@ -57,13 +57,13 @@ function fixture(t, options = {}) {
 		await fs.writeFile(destination, fileId)
 		await options.afterDownload?.(fileId, destination)
 	})
-	t.mock.method(childProcess, 'exec', (command, _options, callback) => {
-		// Emulate img2pdf file selection; this does not test the converter itself.
-		const folder = command.slice('img2pdf '.length, -'/*.jpg'.length)
+	t.mock.method(childProcess, 'execFile', (_command, args, _options, callback) => {
+		// Emulate conversion of the explicitly supplied paths; no glob expansion.
+		const files = args.slice(1)
+		const folder = path.dirname(files[0])
 		void (async () => {
 			await options.beforeConvert?.(folder)
-			const names = (await fs.readdir(folder)).filter((name) => name.endsWith('.jpg')).sort()
-			const contents = await Promise.all(names.map((name) => fs.readFile(path.join(folder, name), 'utf8')))
+			const contents = await Promise.all(files.map((file) => fs.readFile(file, 'utf8')))
 			callback(null, Buffer.from(contents.join(',')))
 		})().catch((error) => callback(error))
 	})

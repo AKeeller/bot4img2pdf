@@ -3,7 +3,7 @@ import bot, { createTelegramFileUrl } from '../bot'
 import BOT_CMD from "../bot-cmd";
 import State from "./state";
 import * as Files from '../files'
-import { exec } from 'child_process'
+import { convertImagesToPdf } from '../pdf'
 
 export default class WaitingPhoto implements State {
 	private pendingDownloads: Promise<void>[] = []
@@ -44,11 +44,7 @@ export default class WaitingPhoto implements State {
 		void bot.api.sendChatAction({ chat_id: msg.chat.id, action: 'upload_document' })
 
 		try {
-			const pdf = await new Promise<Buffer>((resolve, reject) => {
-				exec('img2pdf ' + this.downloadFolder + '/*.jpg', { encoding: 'buffer', maxBuffer: 1024 * 1024 * 50 }, (err, stdout) => {
-					err ? reject(err) : resolve(stdout)
-				})
-			})
+			const pdf = await convertImagesToPdf(this.downloadFolder)
 			await bot.api.sendDocument({
 				chat_id: msg.chat.id,
 				document: new InputFile(pdf, { filename: 'file.pdf', contentType: 'application/pdf' }),

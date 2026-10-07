@@ -56,7 +56,7 @@ for (const [name, extra] of [
 		assert.equal(reply.parse_mode, 'HTML')
 		assert.match(reply.text, /expecting a photo/)
 		assert.equal(api.getFile.mock.callCount(), 0)
-		assert.equal(childProcess.exec.mock.callCount(), 0)
+		assert.equal(childProcess.execFile.mock.callCount(), 0)
 	})
 }
 
@@ -75,7 +75,7 @@ for (const folderExists of [false, true]) {
 		const state = new WaitingPhoto(7)
 		assert.equal(await state.next(message(7, '/done')), state)
 		assert.match(api.sendMessage.mock.calls[0].arguments[0].text, /Send me some photos/)
-		assert.equal(childProcess.exec.mock.callCount(), 0)
+		assert.equal(childProcess.execFile.mock.callCount(), 0)
 		assert.equal(api.sendDocument.mock.callCount(), 0)
 		assert.equal(api.sendChatAction.mock.callCount(), 0)
 	})
@@ -123,7 +123,7 @@ test('/done waits for every download, including downloads finishing out of order
 	const done = state.next(message(7, '/done'))
 	fast.resolve()
 	await flush()
-	assert.equal(childProcess.exec.mock.callCount(), 0)
+	assert.equal(childProcess.execFile.mock.callCount(), 0)
 	slow.resolve()
 	await done
 	assert.deepEqual(documents, [{ chatId: 7, content: 'slow,fast' }])
@@ -230,7 +230,7 @@ test('folder inspection failure rejects /done without running conversion', async
 	fixture(t)
 	t.mock.method(Files, 'isEmpty', async () => { throw new Error('cannot inspect folder') })
 	await assert.rejects(new WaitingPhoto(7).next(message(7, '/done')), /cannot inspect folder/)
-	assert.equal(childProcess.exec.mock.callCount(), 0)
+	assert.equal(childProcess.execFile.mock.callCount(), 0)
 })
 
 test('/reset on an empty job sends the start keyboard and ends the state', async (t) => {
