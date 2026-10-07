@@ -17,6 +17,18 @@ This Telegram bot accepts images from the user and losslessly concatenates them 
 
 5. Repeat from step 3.
 
+Each chat has its own photo state, pending downloads, and temporary folder.
+Messages within a chat are processed in order. PDF conversion, delivery, and
+cleanup finish before that chat's next message is processed. Other chats can
+continue independently. `/reset` waits for that chat's downloads before deleting
+its files.
+
+### Development checks
+
+Run `npm test` to build the bot and check chat isolation and job sequencing.
+The checks use a fake Telegram client and PDF converter; no bot token, Telegram
+connection, or `img2pdf` installation is needed.
+
 ## Requirements
 
 * [Node.js](https://nodejs.org) [mandatory]
