@@ -6,8 +6,8 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "npx tsc",
-    "test": "npm run build && node --test --test-isolation=none \"test/*.test.cjs\"",
-    "test:coverage": "npm run build && node --test --test-isolation=none --experimental-test-coverage --test-coverage-include=\"dist/**/*.js\" \"test/*.test.cjs\"",
+    "test": "npm run build && node --test --test-isolation=none --test-timeout=30000 \"test/*.test.cjs\"",
+    "test:coverage": "npm run build && node --test --test-isolation=none --test-timeout=30000 --experimental-test-coverage --test-coverage-include=\"dist/**/*.js\" --test-coverage-lines=85 --test-coverage-branches=80 --test-coverage-functions=80 \"test/*.test.cjs\"",
     "start": "npx tsc && node -r dotenv/config dist/index.js"
   },
   "devDependencies": {

@@ -25,9 +25,31 @@ its files.
 
 ### Development checks
 
-Run `npm test` to build the bot and check chat isolation and job sequencing.
-The checks use a fake Telegram client and PDF converter; no bot token, Telegram
-connection, or `img2pdf` installation is needed.
+Run `npm test` to build the bot and run all tests. Run `npm run test:coverage`
+to also measure coverage. Both commands use Node's built-in test runner without
+additional test dependencies. Tests run sequentially in one process so scoped
+module, environment, and API mocks remain isolated between cases. Each test has
+a 30-second timeout.
+
+| Area | Coverage |
+| --- | --- |
+| Chat dispatcher | State transitions, ordering, independent chats, failures, resets, reentrant enqueueing, and 1,500 messages across 50 chats |
+| Commands and photo jobs | Welcome and help replies, keyboards, unsupported inputs, photo selection, download completion, PDF metadata, retries, and cleanup |
+| Files | Temporary directories, nested folders, binary downloads, HTTP errors, network failures, interrupted responses, partial writes, and concurrent downloads |
+| Startup and entrypoint | Token validation, polling and webhook selection, URL encoding, error handling, exit status, and token redaction |
+| Webhook lifecycle | URL normalization, certificates, HTTPS forwarding, registration errors, listener errors, and signal shutdown |
+| Integration | Real Telegram middleware and transport, multipart uploads, simultaneous chat jobs, and webhook route and request parsing |
+
+Tests use real temporary files and, in integration cases, the real Telegram
+client and webhook adapter. HTTP responses and the PDF converter are simulated;
+no bot token, network connection, listening port, or `img2pdf` installation is
+needed. Actual PDF conversion, live Telegram delivery, and Docker packaging are
+outside this suite.
+
+CI runs the coverage command and requires at least 85% line coverage, 80% branch
+coverage, and 80% function coverage. The report measures compiled JavaScript in
+`dist`; it includes TypeScript's generated import helpers, including unused
+compatibility branches, rather than mapping coverage back to TypeScript source.
 
 ## Requirements
 
