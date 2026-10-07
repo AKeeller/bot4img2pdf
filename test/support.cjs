@@ -55,6 +55,7 @@ function fixture(t, options = {}) {
 		const fileId = new URL(url).pathname.slice(1)
 		await options.beforeDownload?.(fileId)
 		await fs.writeFile(destination, fileId)
+		await options.afterDownload?.(fileId, destination)
 	})
 	t.mock.method(childProcess, 'exec', (command, _options, callback) => {
 		// Emulate img2pdf file selection; this does not test the converter itself.

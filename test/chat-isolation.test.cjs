@@ -96,11 +96,14 @@ test('concurrent chats keep downloads, PDF contents, and recipients separate', a
 
 test('reset waits for its download and leaves another chat intact', async (t) => {
 	const gate = deferred()
+	const otherDownloaded = deferred()
 	const { root, chats } = fixture(t, {
 		beforeDownload: (fileId) => fileId === 'slow' ? gate.promise : undefined,
+		afterDownload: (fileId) => { if (fileId === 'keep') otherDownloaded.resolve() },
 	})
 	await Promise.all([chats.handle(message(1, '/start')), chats.handle(message(2, '/start'))])
 	await Promise.all([chats.handle(photo(1, 'slow')), chats.handle(photo(2, 'keep'))])
+	await otherDownloaded.promise
 	let resetFinished = false
 	const reset = chats.handle(message(1, '/reset')).then(() => { resetFinished = true })
 	const restart = chats.handle(message(1, '/start'))
