@@ -17,7 +17,7 @@ export class StartState implements State {
 
 		if (msg.text === BOT_CMD.START) {
 			void bot.api.sendMessage({ chat_id: msg.chat.id, text: this.welcomeMessage, parse_mode: 'HTML', reply_markup: this.reply_keyboard })
-			return new WaitingPhoto()
+			return new WaitingPhoto(msg.chat.id)
 		}
 
 		void bot.api.sendMessage({ chat_id: msg.chat.id, text: `Use ${BOT_CMD.START} to start.` })

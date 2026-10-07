@@ -7,72 +7,81 @@ import { exec } from 'child_process'
 
 export default class WaitingPhoto implements State {
 	private pendingDownloads: Promise<void>[] = []
+	private readonly downloadFolder: string
+
+	constructor(private readonly chatId: Message['chat']['id']) {
+		this.downloadFolder = Files.getTmp() + '/' + chatId + '/'
+	}
 
 	async next(msg: Message) {
-		const downloadFolder = Files.getTmp() + '/' + msg.chat.id + '/'
+		if (msg.chat.id !== this.chatId)
+			throw new Error('Photo state belongs to a different chat.')
 
 		if (msg.text === BOT_CMD.DONE)
-			return await this.done(downloadFolder, msg)
+			return await this.done(msg)
 
 		else if (msg.text === BOT_CMD.RESET)
-			return this.reset(downloadFolder, msg)
+			return this.reset(msg)
 
 		else if (msg.sticker)
 			return this.sticker(msg)
 
 		else if (msg.photo)
-			return await this.photo(downloadFolder, msg)
+			return await this.photo(msg)
 
 		return this.default(msg)
 	}
 
-	async done(downloadFolder: string, msg: Message) {
+	private async done(msg: Message) {
 		await Promise.allSettled(this.pendingDownloads)
 		this.pendingDownloads = []
 
-		if (await Files.isEmpty(downloadFolder)) {
+		if (await Files.isEmpty(this.downloadFolder)) {
 			void bot.api.sendMessage({ chat_id: msg.chat.id, text: `Send me some photos and then use the ${BOT_CMD.DONE} command 😉` })
 			return this
 		}
 
 		void bot.api.sendChatAction({ chat_id: msg.chat.id, action: 'upload_document' })
 
-		exec('img2pdf ' + downloadFolder + '/*.jpg', { encoding: 'buffer', maxBuffer: 1024 * 1024 * 50 }, (err, stdout, stderr) => {
-			if (err) {
-				console.error(err)
-				return
-			}
-			bot.api.sendDocument({
-				chat_id: msg.chat.id,
-				document: new InputFile(stdout, { filename: 'file.pdf', contentType: 'application/pdf' }),
+		try {
+			const pdf = await new Promise<Buffer>((resolve, reject) => {
+				exec('img2pdf ' + this.downloadFolder + '/*.jpg', { encoding: 'buffer', maxBuffer: 1024 * 1024 * 50 }, (err, stdout) => {
+					err ? reject(err) : resolve(stdout)
+				})
 			})
-				.then(() => Files.deleteFolder(downloadFolder))
-				.catch((sendError: unknown) => console.error('Error sending PDF:', sendError))
-		})
+			await bot.api.sendDocument({
+				chat_id: msg.chat.id,
+				document: new InputFile(pdf, { filename: 'file.pdf', contentType: 'application/pdf' }),
+			})
+			await Files.deleteFolder(this.downloadFolder)
+		} catch (error: unknown) {
+			console.error('Error completing PDF job:', error)
+		}
 
 		return this
 	}
 
-	reset(downloadFolder: string, msg: Message) {
+	private async reset(msg: Message) {
 		const start: KeyboardButton = { text: BOT_CMD.START }
 		const reply_keyboard: ReplyKeyboardMarkup = { keyboard: [[start]], one_time_keyboard: false, resize_keyboard: true }
 
+		await Promise.allSettled(this.pendingDownloads)
 		this.pendingDownloads = []
-		void Files.deleteFolder(downloadFolder)
+		await Files.deleteFolder(this.downloadFolder)
 		void bot.api.sendMessage({ chat_id: msg.chat.id, text: "Bot reset completed.", reply_markup: reply_keyboard })
 		return undefined
 	}
 
-	sticker(msg: Message) {
+	private sticker(msg: Message) {
 		void bot.api.sendMessage({ chat_id: msg.chat.id, text: "Your sticker is very funny, but unfortunately I only accept photos!" })
 		return this
 	}
 
-	async photo(downloadFolder: string, msg: Message) {
-		await Files.createFolder(downloadFolder)
+	private async photo(msg: Message) {
+		await Files.createFolder(this.downloadFolder)
 
 		const photo = msg.photo![msg.photo!.length - 1]
-		const destination = `${downloadFolder}${msg.message_id}.jpg`
+		const destination = `${this.downloadFolder}${msg.message_id}.jpg`
 		const downloadPromise = (async () => {
 			const file = await bot.api.getFile({ file_id: photo.file_id })
 			if (!file.file_path)
@@ -84,11 +93,13 @@ export default class WaitingPhoto implements State {
 		})
 
 		this.pendingDownloads.push(downloadPromise)
+		// Downloads may fail before /done or /reset attaches its settlement handler.
+		void downloadPromise.catch(() => {})
 
 		return this
 	}
 
-	default(msg: Message) {
+	private default(msg: Message) {
 		void bot.api.sendMessage({ chat_id: msg.chat.id, text: "<b>Oops!</b> I was expecting a photo, but I received something else. Please, send me some pictures!", parse_mode: 'HTML' })
 		return this
 	}
