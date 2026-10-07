@@ -23,6 +23,12 @@ cleanup finish before that chat's next message is processed. Other chats can
 continue independently. `/reset` waits for that chat's downloads before deleting
 its files.
 
+PDF conversion invokes `img2pdf` directly with shell execution disabled. Regular
+`.jpg` files are sorted by filename and passed as separate absolute path
+arguments after `--`. A failed process is logged, its output is not uploaded,
+and the photos remain available for retry. Conversion retains a 50 MiB output
+buffer limit.
+
 ### Development checks
 
 Run `npm test` to build the bot and run all tests. Run `npm run test:coverage`
@@ -35,6 +41,7 @@ a 30-second timeout.
 | --- | --- |
 | Chat dispatcher | State transitions, ordering, independent chats, failures, resets, reentrant enqueueing, and 1,500 messages across 50 chats |
 | Commands and photo jobs | Welcome and help replies, keyboards, unsupported inputs, photo selection, download completion, PDF metadata, retries, and cleanup |
+| PDF process | Literal path arguments, option termination, filename ordering, image filtering, nonzero exits, missing executables, and output limits |
 | Files | Temporary directories, nested folders, binary downloads, HTTP errors, network failures, interrupted responses, partial writes, and concurrent downloads |
 | Startup and entrypoint | Token validation, polling and webhook selection, URL encoding, error handling, exit status, and token redaction |
 | Webhook lifecycle | URL normalization, certificates, HTTPS forwarding, registration errors, listener errors, and signal shutdown |
@@ -45,6 +52,10 @@ client and webhook adapter. HTTP responses and the PDF converter are simulated;
 no bot token, network connection, listening port, or `img2pdf` installation is
 needed. Actual PDF conversion, live Telegram delivery, and Docker packaging are
 outside this suite.
+
+Process tests also launch a small Node stand-in through the real `execFile` API
+to verify argument handling, nonzero exit codes, and output limits across an
+actual child process boundary.
 
 CI runs the coverage command and requires at least 85% line coverage, 80% branch
 coverage, and 80% function coverage. The report measures compiled JavaScript in
