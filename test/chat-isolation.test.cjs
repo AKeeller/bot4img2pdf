@@ -1,85 +1,11 @@
 const assert = require('node:assert/strict')
 const { test } = require('node:test')
 const fs = require('node:fs/promises')
-const { mkdtempSync } = require('node:fs')
-const { tmpdir } = require('node:os')
 const path = require('node:path')
-const childProcess = require('node:child_process')
-
-// Load the production state machine with a fake Telegram client. No token or
-// network connection is needed, and the real bot is never started.
-const handlers = new Map()
-const api = {
-	sendMessage: async () => {},
-	sendChatAction: async () => {},
-	sendDocument: async () => {},
-	getFile: async ({ file_id }) => ({ file_path: file_id }),
-}
-const botPath = require.resolve('../dist/bot.js')
-require.cache[botPath] = {
-	id: botPath, filename: botPath, loaded: true,
-	exports: {
-		__esModule: true,
-		default: { api, on: (event, handler) => handlers.set(event, handler) },
-		createTelegramFileUrl: (filePath) => `https://example.invalid/${filePath}`,
-		startBot: async () => {},
-	},
-}
-
-const Chats = require('../dist/chats.js').default
-const WaitingPhoto = require('../dist/state/state.waiting-photo.js').default
-const Files = require('../dist/files.js')
-
-function deferred() {
-	let resolve
-	let reject
-	const promise = new Promise((yes, no) => { resolve = yes; reject = no })
-	return { promise, resolve, reject }
-}
-
-const flush = () => new Promise((resolve) => setImmediate(resolve))
-const message = (chatId, text, messageId = 1) => ({
-	chat: { id: chatId, type: 'private' }, message_id: messageId, text,
-})
-const photo = (chatId, fileId, messageId = 1) => ({
-	...message(chatId, undefined, messageId),
-	photo: [{ file_id: fileId, width: 1, height: 1, file_size: 1 }],
-})
-
-function fixture(t, options = {}) {
-	const root = mkdtempSync(path.join(tmpdir(), 'chat-isolation-test-'))
-	t.after(() => fs.rm(root, { recursive: true, force: true }))
-	t.mock.method(Files, 'getTmp', () => root)
-	t.mock.method(api, 'sendMessage', async () => {})
-	t.mock.method(api, 'sendChatAction', async () => {})
-	t.mock.method(api, 'getFile', async ({ file_id }) => ({ file_path: file_id }))
-	t.mock.method(Files, 'downloadFromUrl', async (url, destination) => {
-		const fileId = new URL(url).pathname.slice(1)
-		await options.beforeDownload?.(fileId)
-		await fs.writeFile(destination, fileId)
-	})
-	t.mock.method(childProcess, 'exec', (command, _options, callback) => {
-		// Emulate img2pdf's selection of files, making the output inspectable.
-		const folder = command.slice('img2pdf '.length, -'/*.jpg'.length)
-		void (async () => {
-			await options.beforeConvert?.(folder)
-			const names = (await fs.readdir(folder)).filter((name) => name.endsWith('.jpg')).sort()
-			const contents = await Promise.all(names.map((name) => fs.readFile(path.join(folder, name), 'utf8')))
-			callback(null, Buffer.from(contents.join(',')))
-		})().catch((error) => callback(error))
-	})
-	const documents = []
-	t.mock.method(api, 'sendDocument', async (document) => {
-		documents.push({ chatId: document.chat_id, content: document.document.data.toString() })
-		await options.beforeDelivery?.(document.chat_id)
-	})
-	const deleteFolder = Files.deleteFolder
-	t.mock.method(Files, 'deleteFolder', async (folder) => {
-		await options.beforeCleanup?.(folder)
-		await deleteFolder(folder)
-	})
-	return { root, documents, chats: new Chats() }
-}
+const {
+	api, handlers, Chats, WaitingPhoto, Files,
+	deferred, flush, message, photo, fixture, loadFresh,
+} = require('./support.cjs')
 
 test('messages in one chat wait for the previous state transition', async () => {
 	const gate = deferred()
@@ -253,7 +179,7 @@ test('the polling message handler returns while a chat job is running', async (t
 		if (msg.chat.id === 1) { started.resolve(); return gate.promise }
 		return Promise.resolve()
 	})
-	require('../dist/index.js')
+	loadFresh(t, '../dist/index.js')
 	const handle = handlers.get('message')
 	assert.equal(handle({ message: message(1, 'blocked') }), undefined)
 	await started.promise
